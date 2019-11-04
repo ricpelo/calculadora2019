@@ -1,17 +1,5 @@
 <?php
 
-/**
- * Devuelve el valor de un parámetro GET, o cadena vacía
- * si no existe.
- *
- * @param string $p
- * @return string
- */
-function param(string $p): string
-{
-    return isset($_GET[$p]) ? trim($_GET[$p]) : '';
-}
-
 function calcular(&$op1, $op2, $op)
 {
     switch ($op) {
@@ -35,15 +23,16 @@ function calcular(&$op1, $op2, $op)
 
 function comprobarParametros($par, &$errores)
 {
+    $res = $par;
     if (!empty($_GET)) {
         if (empty(array_diff_key($par, $_GET)) &&
             empty(array_diff_key($_GET, $par))) {
-            return $_GET;
+            $res = array_map('trim', $_GET);
         } else {
             $errores[] = 'Los parámetros recibidos no son los correctos.';
         }
     }
-    return $par;
+    return $res;
 }
 
 function comprobarValores($op1, $op2, $op, $ops, &$errores)
@@ -57,6 +46,10 @@ function comprobarValores($op1, $op2, $op, $ops, &$errores)
     if (!in_array($op, $ops)) {
         $errores[] = 'El operador no es correcto';
     }
+    if ($op == '/' && $op2 == 0) {
+        $errores[] = 'No se puede dividir por cero.';
+    }
+    comprobarErrores($errores);
 }
 
 /**
@@ -84,7 +77,12 @@ function comprobarErrores($errores)
     }
 }
 
-function dibujarFormulario($op1, $op2, $op)
+function selected($op, $o)
+{
+    return $op == $o ? 'selected' : '';
+}
+
+function dibujarFormulario($op1, $op2, $op, $ops)
 {
     ?>
     <form action="" method="get">
@@ -95,7 +93,13 @@ function dibujarFormulario($op1, $op2, $op)
         <input type="text" id="op2" name="op2" value="<?= $op2 ?>">
         <br>
         <label for="op">Operación:</label>
-        <input type="text" id="op" name="op" value="<?= $op ?>">
+        <select name="op">
+            <?php foreach ($ops as $o): ?>
+                <option value="<?= $o ?>" <?= selected($op, $o) ?> >
+                    <?= $o ?>
+                </option>
+            <?php endforeach ?>
+        </select>
         <br>
         <button type="submit">Calcular</button>
     </form>

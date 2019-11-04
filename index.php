@@ -19,13 +19,12 @@
         extract(comprobarParametros(PAR, $errores));
         comprobarErrores($errores);
         comprobarValores($op1, $op2, $op, OPS, $errores);
-        comprobarErrores($errores);
         calcular($op1, $op2, $op);
     } catch (Exception $e) {
         // No se hace nada
     }
 
-    dibujarFormulario($op1, $op2, $op);
+    dibujarFormulario($op1, $op2, $op, OPS);
     mostrarErrores($errores);
     ?>
 </body>
