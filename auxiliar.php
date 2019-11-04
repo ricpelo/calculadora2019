@@ -33,21 +33,30 @@ function calcular(&$op1, $op2, $op)
     }
 }
 
-function comprobarParametros(&$errores)
+function comprobarParametros($par, &$errores)
 {
-    $par = ['op1', 'op2', 'op'];
-
     if (!empty($_GET)) {
-        if (!(empty(array_diff($par, array_keys($_GET))) &&
-            empty(array_diff(array_keys($_GET), $par)))) {
+        if (empty(array_diff_key($par, $_GET)) &&
+            empty(array_diff_key($_GET, $par))) {
+            return $_GET;
+        } else {
             $errores[] = 'Los parámetros recibidos no son los correctos.';
         }
     }
+    return $par;
 }
 
-function comprobarValores($op1, $op2, $op, $ops)
+function comprobarValores($op1, $op2, $op, $ops, &$errores)
 {
-    return is_numeric($op1) && is_numeric($op2) && in_array($op, $ops);
+    if (!is_numeric($op1)) {
+        $errores[] = 'El primer operando no es un número';
+    }
+    if (!is_numeric($op2)) {
+        $errores[] = 'El segundo operando no es un número';
+    }
+    if (!in_array($op, $ops)) {
+        $errores[] = 'El operador no es correcto';
+    }
 }
 
 /**
@@ -61,9 +70,34 @@ function mensajeError(string $m): void
     <div class="error"><?= $m ?></div><?php
 }
 
+function mostrarErrores($errores)
+{
+    foreach ($errores as $error) {
+        mensajeError($error);
+    }
+}
+
 function comprobarErrores($errores)
 {
-    if (!empty($errores)) {
+    if (empty($_GET) || !empty($errores)) {
         throw new Exception();
     }
+}
+
+function dibujarFormulario($op1, $op2, $op)
+{
+    ?>
+    <form action="" method="get">
+        <label for="op1">Primer operando:</label>
+        <input type="text" id="op1" name="op1" value="<?= $op1 ?>">
+        <br>
+        <label for="op2">Segundo operando:</label>
+        <input type="text" id="op2" name="op2" value="<?= $op2 ?>">
+        <br>
+        <label for="op">Operación:</label>
+        <input type="text" id="op" name="op" value="<?= $op ?>">
+        <br>
+        <button type="submit">Calcular</button>
+    </form>
+    <?php
 }
