@@ -1,7 +1,9 @@
 <?php
 
-function calcular(&$op1, $op2, $op)
+function calcular($args)
 {
+    extract($args);
+
     switch ($op) {
         case '+':
             $op1 += $op2;
@@ -19,6 +21,8 @@ function calcular(&$op1, $op2, $op)
             $op1 /= $op2;
             break;
     }
+
+    return compact('op1', 'op2', 'op');
 }
 
 function comprobarParametros($par, &$errores)
@@ -35,8 +39,10 @@ function comprobarParametros($par, &$errores)
     return $res;
 }
 
-function comprobarValores($op1, $op2, $op, $ops, &$errores)
+function comprobarValores($args, $ops, &$errores)
 {
+    extract($args);
+
     if (!is_numeric($op1)) {
         $errores['op1'] = 'El primer operando no es un número';
     }
@@ -88,8 +94,9 @@ function valido($campo, $errores)
     }
 }
 
-function dibujarFormulario($op1, $op2, $op, $ops, $errores)
+function dibujarFormulario($args, $ops, $errores)
 {
+    extract($args);
     ?>
     <form action="" method="get">
         <div class="form-group">

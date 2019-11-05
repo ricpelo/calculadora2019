@@ -23,15 +23,15 @@
                     $errores = [];
                     
                     try {
-                        extract(comprobarParametros(PAR, $errores));
+                        $args = comprobarParametros(PAR, $errores);
                         comprobarErrores($errores);
-                        comprobarValores($op1, $op2, $op, OPS, $errores);
-                        calcular($op1, $op2, $op);
+                        comprobarValores($args, OPS, $errores);
+                        $args = calcular($args);
                     } catch (Exception $e) {
                         // No se hace nada
                     }
                     
-                    dibujarFormulario($op1, $op2, $op, OPS, $errores);
+                    dibujarFormulario($args, OPS, $errores);
                     ?>
                 </div>
             </div>
