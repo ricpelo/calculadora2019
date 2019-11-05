@@ -38,35 +38,30 @@ function comprobarParametros($par, &$errores)
 function comprobarValores($op1, $op2, $op, $ops, &$errores)
 {
     if (!is_numeric($op1)) {
-        $errores[] = 'El primer operando no es un número';
+        $errores['op1'] = 'El primer operando no es un número';
     }
     if (!is_numeric($op2)) {
-        $errores[] = 'El segundo operando no es un número';
+        $errores['op2'] = 'El segundo operando no es un número';
     }
     if (!in_array($op, $ops)) {
-        $errores[] = 'El operador no es correcto';
+        $errores['op'] = 'El operador no es correcto';
     }
     if ($op == '/' && $op2 == 0) {
-        $errores[] = 'No se puede dividir por cero.';
+        $errores['op'] = 'No se puede dividir por cero.';
     }
     comprobarErrores($errores);
 }
 
-/**
- * Vuelca por la salida un mensaje de error.
- *
- * @param string $m
- * @return void
- */
-function mensajeError(string $m): void
-{ ?>
-    <div class="error"><?= $m ?></div><?php
-}
-
-function mostrarErrores($errores)
+function mensajeError($campo, $errores)
 {
-    foreach ($errores as $error) {
-        mensajeError($error);
+    if (isset($errores[$campo])) {
+        return <<<EOT
+        <div class="invalid-feedback">
+            {$errores[$campo]}
+        </div>
+        EOT;
+    } else {
+        return '';
     }
 }
 
@@ -82,26 +77,48 @@ function selected($op, $o)
     return $op == $o ? 'selected' : '';
 }
 
-function dibujarFormulario($op1, $op2, $op, $ops)
+function valido($campo, $errores)
+{
+    if (isset($errores[$campo])) {
+        return 'is-invalid';
+    } elseif (!empty($_GET)) {
+        return 'is-valid';
+    } else {
+        return '';
+    }
+}
+
+function dibujarFormulario($op1, $op2, $op, $ops, $errores)
 {
     ?>
     <form action="" method="get">
-        <label for="op1">Primer operando:</label>
-        <input type="text" id="op1" name="op1" value="<?= $op1 ?>">
-        <br>
-        <label for="op2">Segundo operando:</label>
-        <input type="text" id="op2" name="op2" value="<?= $op2 ?>">
-        <br>
-        <label for="op">Operación:</label>
-        <select name="op">
-            <?php foreach ($ops as $o): ?>
-                <option value="<?= $o ?>" <?= selected($op, $o) ?> >
-                    <?= $o ?>
-                </option>
-            <?php endforeach ?>
-        </select>
-        <br>
-        <button type="submit">Calcular</button>
+        <div class="form-group">
+            <label for="op1">Primer operando:</label>
+            <input type="text"
+                   class="form-control <?= valido('op1', $errores) ?>"
+                   id="op1" name="op1" value="<?= $op1 ?>">
+            <?= mensajeError('op1', $errores) ?>
+        </div>
+        <div class="form-group">
+            <label for="op2">Segundo operando:</label>
+            <input type="text"
+                   class="form-control <?= valido('op2', $errores) ?>"
+                   id="op2" name="op2" value="<?= $op2 ?>">
+            <?= mensajeError('op2', $errores) ?>
+        </div>
+        <div class="form-group">
+            <label for="op">Operación:</label>
+            <select class="form-control <?= valido('op', $errores) ?>"
+                    name="op">
+                <?php foreach ($ops as $o): ?>
+                    <option value="<?= $o ?>" <?= selected($op, $o) ?> >
+                        <?= $o ?>
+                    </option>
+                <?php endforeach ?>
+            </select>
+            <?= mensajeError('op', $errores) ?>
+        </div>
+        <button type="submit" class="btn btn-primary">Calcular</button>
     </form>
     <?php
 }
